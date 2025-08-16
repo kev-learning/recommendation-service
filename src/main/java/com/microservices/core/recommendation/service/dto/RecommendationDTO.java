@@ -1,4 +1,4 @@
-package microservices.core.recommendation.service.dto;
+package com.microservices.core.recommendation.service.dto;
 
 import lombok.Builder;
 

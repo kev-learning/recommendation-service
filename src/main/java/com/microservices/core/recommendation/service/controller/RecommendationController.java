@@ -1,4 +1,4 @@
-package microservices.core.recommendation.service.controller;
+package com.microservices.core.recommendation.service.controller;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
-package microservices.core.recommendation.service.controller;
+package com.microservices.core.recommendation.service.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import microservices.core.recommendation.service.dto.RecommendationDTO;
+import com.microservices.core.recommendation.service.dto.RecommendationDTO;
 import com.microservices.core.util.exceptions.InvalidInputException;
 import com.microservices.core.util.http.ServiceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
