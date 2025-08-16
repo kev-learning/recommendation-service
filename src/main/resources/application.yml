@@ -8,4 +8,13 @@ server:
 logging:
   level:
     root: INFO
-    microservices.core: DEBUG
+    com.microservices.core: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+
+server:
+  port: 8080
