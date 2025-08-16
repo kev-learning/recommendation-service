@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: recommendation-service
+
+server:
+  port: 7003
+
+logging:
+  level:
+    root: INFO
+    microservices.core: DEBUG
