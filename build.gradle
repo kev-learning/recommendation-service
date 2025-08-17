@@ -19,6 +19,7 @@ jar {
 
 ext {
 	lombokVersion = '1.18.38'
+	mapStructVersion = '1.5.3.Final'
 }
 
 repositories {
@@ -31,10 +32,15 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	implementation 'com.microservices.core:microservice-util:1.0.0'
+	implementation "org.mapstruct:mapstruct:${mapStructVersion}"
 
 	compileOnly "org.projectlombok:lombok:${lombokVersion}"
 	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	compileOnly "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
@@ -42,6 +48,9 @@ dependencies {
 
 	testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
 	testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+	testCompileOnly "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+	testAnnotationProcessor "org.mapstruct:mapstruct-processor:${mapStructVersion}"
 }
 
 tasks.named('test') {
