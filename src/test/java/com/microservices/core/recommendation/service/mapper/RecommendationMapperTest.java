@@ -24,14 +24,14 @@ class RecommendationMapperTest {
         recommendation.setAuthor("AUTHOR");
         recommendation.setContent("CONTENT");
 
-        RecommendationDTO recommendationDTO = recommendationMapper.entityToDTO(recommendation);
+        RecommendationDTO recommendationDTO = recommendationMapper.entityToDTO(recommendation, "Address");
 
         assertEquals(recommendation.getRecommendationId(), recommendationDTO.recommendationId());
         assertEquals(recommendation.getProductId(), recommendationDTO.productId());
         assertEquals(recommendation.getAuthor(), recommendationDTO.author());
         assertEquals(recommendation.getContent(), recommendationDTO.content());
         assertEquals(recommendation.getRating(), recommendationDTO.rating());
-        assertNull(recommendationDTO.serviceAddress());
+        assertEquals("Address", recommendationDTO.serviceAddress());
     }
 
     @Test

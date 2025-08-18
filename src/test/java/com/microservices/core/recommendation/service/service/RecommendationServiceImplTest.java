@@ -43,8 +43,10 @@ class RecommendationServiceImplTest {
     @Test
     void createRecommendationTest() {
         Mockito.when(recommendationMapper.DTOToEntity(Mockito.any(RecommendationDTO.class))).thenReturn(buildRecommendation());
-        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class))).thenReturn(buildRecommendationDTO());
+        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString())).thenReturn(buildRecommendationDTO());
         Mockito.when(recommendationRepository.save(Mockito.any(Recommendation.class))).thenReturn(buildRecommendation());
+
+        Mockito.when(serviceUtil.getAddress()).thenReturn("Address");
 
         RecommendationDTO recommendationDTO = recommendationService.createRecommendation(buildRecommendationDTO());
 
@@ -54,7 +56,9 @@ class RecommendationServiceImplTest {
     @Test
     void getRecommendationsTest() {
         Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Collections.singletonList(buildRecommendation()));
-        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class))).thenReturn(buildRecommendationDTO());
+        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString())).thenReturn(buildRecommendationDTO());
+
+        Mockito.when(serviceUtil.getAddress()).thenReturn("Address");
 
         List<RecommendationDTO> recommendationDTOS = recommendationService.findRecommendations(COMMON_ID);
 
@@ -78,7 +82,7 @@ class RecommendationServiceImplTest {
         assertNotNull(recommendationDTOS);
         assertTrue(recommendationDTOS.isEmpty());
 
-        Mockito.verify(recommendationMapper, Mockito.never()).entityToDTO(Mockito.any(Recommendation.class));
+        Mockito.verify(recommendationMapper, Mockito.never()).entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString());
     }
 
     @Test

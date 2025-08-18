@@ -10,9 +10,9 @@ import org.mapstruct.Mappings;
 public interface RecommendationMapper {
 
     @Mappings({
-            @Mapping(target = "serviceAddress", ignore = true)
+            @Mapping(target = "serviceAddress", source = "address")
     })
-    RecommendationDTO entityToDTO(Recommendation recommendation);
+    RecommendationDTO entityToDTO(Recommendation recommendation, String address);
 
     @Mappings({
             @Mapping(target = "id", ignore = true),

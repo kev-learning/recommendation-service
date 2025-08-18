@@ -36,7 +36,7 @@ public class RecommendationServiceImpl implements RecommendationService{
 
         log.debug("Created new recommendation: {}", recommendation);
 
-        return recommendationMapper.entityToDTO(recommendation);
+        return recommendationMapper.entityToDTO(recommendation, serviceUtil.getAddress());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class RecommendationServiceImpl implements RecommendationService{
         log.debug("Found recommendations for product ID: {}", recommendations);
 
         return Optional.ofNullable(recommendations).orElse(Collections.emptyList())
-                .stream().map(recommendationMapper::entityToDTO).toList();
+                .stream().map(recommendation -> recommendationMapper.entityToDTO(recommendation, serviceUtil.getAddress())).toList();
     }
 
     @Override
