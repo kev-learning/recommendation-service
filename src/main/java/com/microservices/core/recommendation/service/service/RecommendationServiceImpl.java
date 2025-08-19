@@ -9,12 +9,11 @@ import com.microservices.core.util.http.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.logging.Level;
 
 @Slf4j
 @Service
@@ -30,32 +29,35 @@ public class RecommendationServiceImpl implements RecommendationService{
     private RecommendationMapper recommendationMapper;
 
     @Override
-    public RecommendationDTO createRecommendation(RecommendationDTO recommendationDTO) {
+    public Mono<RecommendationDTO> createRecommendation(RecommendationDTO recommendationDTO) {
         Recommendation recommendation = recommendationMapper.DTOToEntity(recommendationDTO);
-        recommendation = recommendationRepository.save(recommendation);
+        Mono<RecommendationDTO> createdRecommendation = recommendationRepository.save(recommendation)
+                .log(log.getName(), Level.FINE)
+                .map(entity -> recommendationMapper.entityToDTO(entity, serviceUtil.getAddress()));
 
-        log.debug("Created new recommendation: {}", recommendation);
+        log.debug("Created new recommendation: {}", createdRecommendation);
 
-        return recommendationMapper.entityToDTO(recommendation, serviceUtil.getAddress());
+        return createdRecommendation;
     }
 
     @Override
-    public List<RecommendationDTO> findRecommendations(Long productId) {
+    public Flux<RecommendationDTO> findRecommendations(Long productId) {
 
         if(Objects.isNull(productId) || productId < 1) {
             throw new InvalidInputException("Invalid Product ID: " + productId);
         }
 
-        List<Recommendation> recommendations = recommendationRepository.findByProductId(productId);
+        Flux<RecommendationDTO> recommendations = recommendationRepository.findByProductId(productId)
+                .log(log.getName(), Level.FINE)
+                .map(entity -> recommendationMapper.entityToDTO(entity, serviceUtil.getAddress()));
 
         log.debug("Found recommendations for product ID: {}", recommendations);
 
-        return Optional.ofNullable(recommendations).orElse(Collections.emptyList())
-                .stream().map(recommendation -> recommendationMapper.entityToDTO(recommendation, serviceUtil.getAddress())).toList();
+        return recommendations;
     }
 
     @Override
-    public void deleteRecommendations(Long productId) {
+    public Mono<Void> deleteRecommendations(Long productId) {
 
         if(Objects.isNull(productId) || productId < 1) {
             throw new InvalidInputException("Invalid Product ID: " + productId);
@@ -63,10 +65,7 @@ public class RecommendationServiceImpl implements RecommendationService{
 
         log.debug("Deleting recommendations for product ID: {}", productId);
 
-        List<Recommendation> recommendations = recommendationRepository.findByProductId(productId);
-
-        if(!CollectionUtils.isEmpty(recommendations)) {
-            recommendationRepository.deleteAll(recommendations);
-        }
+        return recommendationRepository.findByProductId(productId)
+                .map(recommendationRepository::delete).flatMap(e -> e).then();
     }
 }

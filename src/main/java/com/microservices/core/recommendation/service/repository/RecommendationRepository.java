@@ -1,11 +1,13 @@
 package com.microservices.core.recommendation.service.repository;
 
 import com.microservices.core.recommendation.service.model.Recommendation;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
 
-import java.util.List;
 
-public interface RecommendationRepository extends CrudRepository<Recommendation, String> {
+@Repository
+public interface RecommendationRepository extends ReactiveCrudRepository<Recommendation, String> {
 
-    List<Recommendation> findByProductId(Long productId);
+    Flux<Recommendation> findByProductId(Long productId);
 }

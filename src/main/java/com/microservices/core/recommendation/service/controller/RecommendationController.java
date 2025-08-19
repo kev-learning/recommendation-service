@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,16 +23,21 @@ public class RecommendationController {
     private RecommendationService recommendationService;
 
     @GetMapping(value = "/recommendation", produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<RecommendationDTO>> getRecommendations(@RequestParam(value = "productId", required = true) Long productId) {
+    ResponseEntity<Flux<RecommendationDTO>> getRecommendations(@RequestParam(value = "productId", required = true) Long productId) {
         return ResponseEntity.ok(recommendationService.findRecommendations(productId));
     }
 
     @PostMapping(value = "/recommendation", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    ResponseEntity<List<RecommendationDTO>> createRecommendations(@RequestBody List<RecommendationDTO> recommendationDTOS){
-        List<RecommendationDTO> recommendationDTOList = Optional.ofNullable(recommendationDTOS).orElse(Collections.emptyList())
+    ResponseEntity<Flux<RecommendationDTO>> createRecommendations(@RequestBody List<RecommendationDTO> recommendationDTOS){
+
+        //Collect all monos first into a list
+        List<Mono<RecommendationDTO>> recommendationDTOList = Optional.ofNullable(recommendationDTOS).orElse(Collections.emptyList())
                 .stream().map(recommendationService::createRecommendation).toList();
 
-        return new ResponseEntity<>(recommendationDTOList, HttpStatus.CREATED);
+        //Convert the list of monos to flux via flatMap
+        Flux<RecommendationDTO> recommendationDTOFlux = Flux.fromIterable(recommendationDTOList).flatMap(e -> e);
+
+        return new ResponseEntity<>(recommendationDTOFlux, HttpStatus.CREATED);
     }
 
     @DeleteMapping(value = "/recommendation")

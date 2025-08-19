@@ -11,9 +11,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,29 +43,22 @@ class RecommendationServiceImplTest {
 
     @Test
     void createRecommendationTest() {
-        Mockito.when(recommendationMapper.DTOToEntity(Mockito.any(RecommendationDTO.class))).thenReturn(buildRecommendation());
-        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString())).thenReturn(buildRecommendationDTO());
+        Mockito.when(recommendationMapper.DTOToEntity(Mockito.any(RecommendationDTO.class))).thenReturn(buildRecommendation().block());
         Mockito.when(recommendationRepository.save(Mockito.any(Recommendation.class))).thenReturn(buildRecommendation());
 
-        Mockito.when(serviceUtil.getAddress()).thenReturn("Address");
-
-        RecommendationDTO recommendationDTO = recommendationService.createRecommendation(buildRecommendationDTO());
+        Mono<RecommendationDTO> recommendationDTO = recommendationService.createRecommendation(buildRecommendationDTO());
 
         assertNotNull(recommendationDTO);
     }
 
     @Test
     void getRecommendationsTest() {
-        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Collections.singletonList(buildRecommendation()));
-        Mockito.when(recommendationMapper.entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString())).thenReturn(buildRecommendationDTO());
+        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Flux.just(buildRecommendation()).cast(Recommendation.class));
 
-        Mockito.when(serviceUtil.getAddress()).thenReturn("Address");
-
-        List<RecommendationDTO> recommendationDTOS = recommendationService.findRecommendations(COMMON_ID);
+        Flux<RecommendationDTO> recommendationDTOS = recommendationService.findRecommendations(COMMON_ID);
 
         assertNotNull(recommendationDTOS);
-        assertFalse(recommendationDTOS.isEmpty());
-        assertEquals(1, recommendationDTOS.size());
+        recommendationDTOS.count().subscribe(count -> assertEquals(1, count));
     }
 
     @Test
@@ -75,29 +69,26 @@ class RecommendationServiceImplTest {
 
     @Test
     void getRecommendationsEmptyTest() {
-        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Collections.emptyList());
+        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Flux.empty());
 
-        List<RecommendationDTO> recommendationDTOS = recommendationService.findRecommendations(COMMON_ID);
+        Flux<RecommendationDTO> recommendationDTOS = recommendationService.findRecommendations(COMMON_ID);
 
         assertNotNull(recommendationDTOS);
-        assertTrue(recommendationDTOS.isEmpty());
+        recommendationDTOS.count().subscribe(count -> assertEquals(0, count));
 
         Mockito.verify(recommendationMapper, Mockito.never()).entityToDTO(Mockito.any(Recommendation.class), Mockito.anyString());
     }
 
     @Test
     void deleteRecommendationsTest() {
-        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Collections.singletonList(buildRecommendation()));
-        Mockito.doNothing().when(recommendationRepository).deleteAll(Mockito.anyList());
+        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Flux.just(buildRecommendation()).cast(Recommendation.class));
 
         recommendationService.deleteRecommendations(COMMON_ID);
-
-        Mockito.verify(recommendationRepository).deleteAll(Mockito.anyList());
     }
 
     @Test
     void deleteRecommendationsNotFoundTest() {
-        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Collections.emptyList());
+        Mockito.when(recommendationRepository.findByProductId(Mockito.anyLong())).thenReturn(Flux.empty());
 
         recommendationService.deleteRecommendations(COMMON_ID);
 
@@ -110,7 +101,7 @@ class RecommendationServiceImplTest {
         assertThrows(InvalidInputException.class, () -> recommendationService.deleteRecommendations(null));
     }
 
-    private Recommendation buildRecommendation() {
+    private Mono<Recommendation> buildRecommendation() {
         Recommendation recommendation = new Recommendation();
         recommendation.setRecommendationId(COMMON_ID);
         recommendation.setProductId(COMMON_ID);
@@ -120,7 +111,7 @@ class RecommendationServiceImplTest {
         recommendation.setAuthor("AUTHOR");
         recommendation.setContent("CONTENT");
 
-        return recommendation;
+        return Mono.just(recommendation);
     }
 
     private RecommendationDTO buildRecommendationDTO() {

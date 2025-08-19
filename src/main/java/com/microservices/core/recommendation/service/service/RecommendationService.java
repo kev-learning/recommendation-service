@@ -1,14 +1,16 @@
 package com.microservices.core.recommendation.service.service;
 
 import com.microservices.core.recommendation.service.dto.RecommendationDTO;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface RecommendationService {
 
-    RecommendationDTO createRecommendation(RecommendationDTO recommendationDTO);
+    Mono<RecommendationDTO> createRecommendation(RecommendationDTO recommendationDTO);
 
-    List<RecommendationDTO> findRecommendations(Long productId);
+    Flux<RecommendationDTO> findRecommendations(Long productId);
 
-    void deleteRecommendations(Long productId);
+    Mono<Void> deleteRecommendations(Long productId);
 }
