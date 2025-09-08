@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.kafka.KafkaAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(properties = {"eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
+@SpringBootTest
 @ImportAutoConfiguration(exclude = KafkaAutoConfiguration.class)
 class RecommendationServiceApplicationTests {
 
